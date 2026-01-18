@@ -14,7 +14,8 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@langchain/community": "^0.3.37",
+    "@langchain/cohere": "^1.0.1",
+    "@langchain/community": "^0.3.59",
     "@langchain/core": "^0.3.43",
     "@langchain/langgraph": "^0.2.57",
     "@langchain/langgraph-sdk": "^0.0.60",
@@ -28,8 +29,12 @@
     "@types/react": "18.3.2",
     "@types/react-dom": "18.3.0",
     "ai": "^3.1.12",
+    "cheerio": "^1.1.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "glob": "^13.0.0",
+    "html-to-text": "^9.0.5",
+    "jsdom": "^27.4.0",
     "langchain": "^0.3.19",
     "lucide-react": "^0.473.0",
     "next": "^15.4.8",

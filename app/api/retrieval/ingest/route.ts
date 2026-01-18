@@ -1,62 +1,77 @@
 import { NextRequest, NextResponse } from "next/server";
-import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-
-import { createClient } from "@supabase/supabase-js";
+import { Message as VercelChatMessage, StreamingTextResponse } from "ai";
+import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { PromptTemplate } from "@langchain/core/prompts";
 import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase";
-import { OpenAIEmbeddings } from "@langchain/openai";
+import { createClient } from "@supabase/supabase-js";
+import { HttpResponseOutputParser } from "langchain/output_parsers";
+import { RunnableSequence } from "@langchain/core/runnables";
+import { formatDocumentsAsString } from "langchain/util/document";
 
 export const runtime = "edge";
 
-// Before running, follow set-up instructions at
-// https://js.langchain.com/v0.2/docs/integrations/vectorstores/supabase
-
-/**
- * This handler takes input text, splits it into chunks, and embeds those chunks
- * into a vector store for later retrieval. See the following docs for more information:
- *
- * https://js.langchain.com/v0.2/docs/how_to/recursive_text_splitter
- * https://js.langchain.com/v0.2/docs/integrations/vectorstores/supabase
- */
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const text = body.text;
-
-  if (process.env.NEXT_PUBLIC_DEMO === "true") {
-    return NextResponse.json(
-      {
-        error: [
-          "Ingest is not supported in demo mode.",
-          "Please set up your own version of the repo here: https://github.com/langchain-ai/langchain-nextjs-template",
-        ].join("\n"),
-      },
-      { status: 403 },
-    );
-  }
-
   try {
+    const body = await req.json();
+    const messages = body.messages ?? [];
+    const currentMessageContent = messages[messages.length - 1].content;
+
+    // 1. Init Vector Store
     const client = createClient(
       process.env.SUPABASE_URL!,
-      process.env.SUPABASE_PRIVATE_KEY!,
+      process.env.SUPABASE_PRIVATE_KEY!
     );
-
-    const splitter = RecursiveCharacterTextSplitter.fromLanguage("markdown", {
-      chunkSize: 256,
-      chunkOverlap: 20,
+    const vectorStore = new SupabaseVectorStore(new OpenAIEmbeddings(), {
+      client,
+      tableName: "documents",
+      queryName: "match_documents",
     });
 
-    const splitDocuments = await splitter.createDocuments([text]);
+    // 2. Retriever
+    const retriever = vectorStore.asRetriever(4);
 
-    const vectorstore = await SupabaseVectorStore.fromDocuments(
-      splitDocuments,
-      new OpenAIEmbeddings(),
+    // 3. LLM (Temperature 0 for strictness)
+    const model = new ChatOpenAI({
+      modelName: "gpt-3.5-turbo",
+      temperature: 0,
+    });
+
+    // 4. Strict Prompt
+    const prompt = PromptTemplate.fromTemplate(`
+      You are a specialized Unity Documentation Assistant.
+      
+      STRICT RULES:
+      1. Use ONLY the provided context to answer the question.
+      2. If the answer is not in the context, you MUST say "I don't know".
+      3. Do not make up code or classes that are not in the context.
+      
+      Context:
+      {context}
+      
+      Question: 
+      {question}
+      
+      Answer:
+    `);
+
+    // 5. Chain
+    const chain = RunnableSequence.from([
       {
-        client,
-        tableName: "documents",
-        queryName: "match_documents",
+        context: async (input: string) => {
+          const relevantDocs = await retriever.getRelevantDocuments(input);
+          console.log(`Found ${relevantDocs.length} docs`);
+          return formatDocumentsAsString(relevantDocs);
+        },
+        question: (input: string) => input,
       },
-    );
+      prompt,
+      model,
+      new HttpResponseOutputParser(),
+    ]);
 
-    return NextResponse.json({ ok: true }, { status: 200 });
+    const stream = await chain.stream(currentMessageContent);
+    return new StreamingTextResponse(stream);
+
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
