@@ -22,6 +22,13 @@ It's free-tier friendly too! Check out the [bundle size stats below](#-bundle-si
 
 You can check out a hosted version of this repo here: https://langchain-nextjs-template.vercel.app/
 
+##  Project Overview
+
+Detailed documentation on the project's design and implementation can be found in the following files:
+
+- [Project Overview](./PROJECT_OVERVIEW.md): Provides a high-level summary of the application's goals, core features, and technical foundations.
+- [RAG Architecture](./RAG_ARCHITECTURE.md): Explains the technical details of the Retrieval-Augmented Generation pipeline, covering document ingestion, vector storage, and retrieval logic.
+
 ## 🚀 Getting Started
 
 First, clone this repo and download it locally.
@@ -122,14 +129,6 @@ To learn more about what you can do with LangChain.js, check out the docs here:
 When ready, you can deploy your app on the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
 
 Check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-
-## Project Overview
-
-Detailed documentation on the project's design and implementation can be found in the following files:
-
-- [Project Overview](./PROJECT_OVERVIEW.md): Provides a high-level summary of the application's goals, core features, and technical foundations.
-- [RAG Architecture](./RAG_ARCHITECTURE.md): Explains the technical details of the Retrieval-Augmented Generation pipeline, covering document ingestion, vector storage, and retrieval logic.
-
 
 ## Thank You!
 
