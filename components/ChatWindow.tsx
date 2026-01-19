@@ -185,6 +185,7 @@ export function ChatWindow(props: {
 
   const chat = useChat({
     api: props.endpoint,
+    // @ts-ignore
     onResponse(response) {
       const sourcesHeader = response.headers.get("x-sources");
       const sources = sourcesHeader
@@ -223,7 +224,6 @@ export function ChatWindow(props: {
       id: chat.messages.length.toString(),
       content: chat.input,
       role: "user",
-      parts: [{ type: "text", text: chat.input }],
     });
     chat.setMessages(messagesWithUserReply);
 
@@ -269,7 +269,6 @@ export function ChatWindow(props: {
           action: (aiMessage as any).tool_calls?.[0],
           observation: toolMessage.content,
         }),
-        parts: [],
       });
     }
     const newMessages = messagesWithUserReply;
