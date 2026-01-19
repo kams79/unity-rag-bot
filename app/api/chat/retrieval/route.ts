@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Message as VercelChatMessage, StreamingTextResponse } from "ai";
+import { Message as VercelChatMessage, LangChainAdapter } from "ai";
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -9,7 +9,7 @@ import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase"
 import { Document } from "@langchain/core/documents";
 import { RunnableSequence } from "@langchain/core/runnables";
 import {
-  BytesOutputParser,
+  //   BytesOutputParser,
   StringOutputParser,
 } from "@langchain/core/output_parsers";
 
@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
         chat_history: (input) => input.chat_history,
       },
       answerChain,
-      new BytesOutputParser(),
+      new StringOutputParser(),
     ]);
 
     const stream = await conversationalRetrievalQAChain.stream({
@@ -160,10 +160,12 @@ export async function POST(req: NextRequest) {
       ),
     ).toString("base64");
 
-    return new StreamingTextResponse(stream, {
-      headers: {
-        "x-message-index": (previousMessages.length + 1).toString(),
-        "x-sources": serializedSources,
+    return LangChainAdapter.toDataStreamResponse(stream, {
+      init: {
+        headers: {
+          "x-message-index": (previousMessages.length + 1).toString(),
+          "x-sources": serializedSources,
+        },
       },
     });
   } catch (e: any) {

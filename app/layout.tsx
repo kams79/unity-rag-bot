@@ -73,18 +73,7 @@ export default function RootLayout({
                 </a>
                 <nav className="flex gap-1 flex-col md:flex-row">
                   <ActiveLink href="/">🏴‍☠️ Chat</ActiveLink>
-                  <ActiveLink href="/structured_output">
-                    🧱 Structured Output
-                  </ActiveLink>
-                  <ActiveLink href="/agents">🦜 Agents</ActiveLink>
-                  <ActiveLink href="/retrieval">🐶 Retrieval</ActiveLink>
-                  <ActiveLink href="/retrieval_agents">
-                    🤖 Retrieval Agents
-                  </ActiveLink>
-                  <ActiveLink href="/ai_sdk">
-                    🌊 React Server Components
-                  </ActiveLink>
-                  <ActiveLink href="/langgraph">🕸️ LangGraph</ActiveLink>
+
                 </nav>
               </div>
 

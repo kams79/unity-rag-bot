@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { StreamingTextResponse } from "ai";
+import { LangChainAdapter } from "ai";
 import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { createClient } from "@supabase/supabase-js";
 // --- FIXED IMPORTS START ---
 import { StringOutputParser } from "@langchain/core/output_parsers";
-import { HttpResponseOutputParser } from "langchain/output_parsers";
+// import { HttpResponseOutputParser } from "langchain/output_parsers";
 // --- FIXED IMPORTS END ---
 import { RunnableSequence } from "@langchain/core/runnables";
 import { CohereRerank } from "@langchain/cohere";
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
         topN: 5
       });
 
-      return reranked.map(r => r.document.pageContent).join("\n\n---\n\n");
+      return reranked.map(r => uniqueDocs[r.index].pageContent).join("\n\n---\n\n");
     };
 
     // --- PHASE 4: GENERATION ---
@@ -143,11 +143,11 @@ export async function POST(req: NextRequest) {
       },
       answerPrompt,
       model,
-      new HttpResponseOutputParser(), // Uses langchain/output_parsers
+      new StringOutputParser(),
     ]);
 
     const stream = await chain.stream(currentMessageContent);
-    return new StreamingTextResponse(stream);
+    return LangChainAdapter.toDataStreamResponse(stream);
 
   } catch (e: any) {
     console.error(e);

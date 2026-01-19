@@ -199,7 +199,7 @@ export function ChatWindow(props: {
         });
       }
     },
-    streamMode: "text",
+
     onError: (e) =>
       toast.error(`Error while processing your request`, {
         description: e.message,
@@ -223,6 +223,7 @@ export function ChatWindow(props: {
       id: chat.messages.length.toString(),
       content: chat.input,
       role: "user",
+      parts: [{ type: "text", text: chat.input }],
     });
     chat.setMessages(messagesWithUserReply);
 
@@ -251,8 +252,8 @@ export function ChatWindow(props: {
       (responseMessage: Message) => {
         return (
           (responseMessage.role === "assistant" &&
-            !!responseMessage.tool_calls?.length) ||
-          responseMessage.role === "tool"
+            !!(responseMessage as any).tool_calls?.length) ||
+          responseMessage.role === ("tool" as any)
         );
       },
     );
@@ -265,9 +266,10 @@ export function ChatWindow(props: {
         id: (messagesWithUserReply.length + i / 2).toString(),
         role: "system" as const,
         content: JSON.stringify({
-          action: aiMessage.tool_calls?.[0],
+          action: (aiMessage as any).tool_calls?.[0],
           observation: toolMessage.content,
         }),
+        parts: [],
       });
     }
     const newMessages = messagesWithUserReply;

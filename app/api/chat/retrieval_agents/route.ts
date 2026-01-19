@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Message as VercelChatMessage, StreamingTextResponse } from "ai";
+import { Message as VercelChatMessage, LangChainAdapter } from "ai";
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -143,7 +143,7 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      return new StreamingTextResponse(transformStream);
+      return LangChainAdapter.toDataStreamResponse(transformStream);
     } else {
       /**
        * We could also pick intermediate steps out from `streamEvents` chunks, but

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Message as VercelChatMessage, StreamingTextResponse } from "ai";
+import { Message as VercelChatMessage, LangChainAdapter } from "ai";
 import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase";
 import { createClient } from "@supabase/supabase-js";
-import { HttpResponseOutputParser } from "langchain/output_parsers";
+import { StringOutputParser } from "@langchain/core/output_parsers";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { formatDocumentsAsString } from "langchain/util/document";
 
@@ -66,11 +66,11 @@ export async function POST(req: NextRequest) {
       },
       prompt,
       model,
-      new HttpResponseOutputParser(),
+      new StringOutputParser(),
     ]);
 
     const stream = await chain.stream(currentMessageContent);
-    return new StreamingTextResponse(stream);
+    return LangChainAdapter.toDataStreamResponse(stream);
 
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
