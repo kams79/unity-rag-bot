@@ -1282,15 +1282,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@langchain/cohere@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@langchain/cohere@npm:1.0.1"
+"@langchain/cohere@npm:^0.3.0":
+  version: 0.3.4
+  resolution: "@langchain/cohere@npm:0.3.4"
   dependencies:
     cohere-ai: ^7.14.0
     uuid: ^10.0.0
   peerDependencies:
-    "@langchain/core": ^1.0.0
-  checksum: 848811c6f1a8be429169656790054821fece81f8dfddb8ba4b2a7bb1d697c6b7893189d780f92105a7888e5f92b735f6f3dd05eeb2582797a18c67f4d5ca491c
+    "@langchain/core": ">=0.3.58 <0.4.0"
+  checksum: 0b991d389723bfd65744926fdd698857368d7dcd8ba94bdcf83861b7453a5798b92f9c1ef5c61c7bebc5b27895e33d48efe953ad3c161b15368bcc9bf94929cd
   languageName: node
   linkType: hard
 
@@ -6130,7 +6130,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "langchain-nextjs-template@workspace:."
   dependencies:
-    "@langchain/cohere": ^1.0.1
+    "@langchain/cohere": ^0.3.0
     "@langchain/community": ^0.3.59
     "@langchain/core": ^0.3.43
     "@langchain/langgraph": ^0.2.57
